@@ -51,28 +51,28 @@ var DynLoaderInspector = new InspectorFactory({
                 onMatch: function (ctx, event) {
                     ctx.getInspector("DynamicLoader").emits("hook.reflect.method.get", event);
                 },
-                interceptReplace: `  
+                interceptReplace: `
                         var ret = meth_@@__METHDEF__@@.call(this, arg0, arg1);
                         var cls = Java.cast( ret.getDeclaringClass(), DEXC_MODULE.common.class.java.lang.Class);
-                        
-                        send({ 
-                            id:"@@__HOOK_ID__@@", 
-                            match: true, 
+
+                        send({
+                            id:"@@__HOOK_ID__@@",
+                            match: true,
                             data: {
                                 __meth__: DEXC_MODULE.reflect.getMethodSignature(ret,arg1),
                                 __hidden__trace: DEXC_MODULE.common.getStackTrace()
                             },
-                            after: true, 
-                            msg: "Class.getMethod()", 
+                            after: true,
+                            msg: "Class.getMethod()",
                             tags: [{
                                 style:"purple",
                                 text: "invoke"
-                            }], 
-                            action: "Update" 
+                            }],
+                            action: "Update"
                         });
-            
+
                         //  if(!@@__CTX__@@_invokeHooked) @@__CTX__@@_startInvokeHooking();
-            
+
                         return ret;
                 `
             }, {
@@ -81,25 +81,25 @@ var DynLoaderInspector = new InspectorFactory({
                 onMatch: function (ctx, event) {
                     ctx.getInspector("DynamicLoader").emits("hook.reflect.class.get", event);
                 },
-                interceptAfter: `  
-            
+                interceptAfter: `
+
                         //var clscl = Java.cast( arg2.getClass(), DEXC_MODULE.common.class.java.lang.Class);
-            
+
                         //var types = Java.array( this.getParameterTypes(), DEXC_MODULE.common.class.java.lang.Class);
-            
-                        send({ 
-                            id:"@@__HOOK_ID__@@", 
-                            match: true, 
+
+                        send({
+                            id:"@@__HOOK_ID__@@",
+                            match: true,
                             data: {
                                 __class__: arg0.toString()
                             },
-                            after: true, 
-                            msg: "Class.forName()", 
+                            after: true,
+                            msg: "Class.forName()",
                             tags: [{
                                 style:"purple",
                                 text: "dynamic"
-                            }], 
-                            action: "Update" 
+                            }],
+                            action: "Update"
                         });
                 `
             }, {
@@ -108,54 +108,54 @@ var DynLoaderInspector = new InspectorFactory({
                 onMatch: function (ctx, event) {
                     ctx.getInspector("DynamicLoader").emits("hook.dex.find.class", event);
                 },
-                interceptAfter: `   
+                interceptAfter: `
                         // get classname
                         var cls = Java.cast(ret, CLS.java.lang.Class);
                         // collect methods
                         // cls.getMethods();
-            
-                        send({ 
-                            id:"@@__HOOK_ID__@@", 
-                            match: true, 
+
+                        send({
+                            id:"@@__HOOK_ID__@@",
+                            match: true,
                             data: {
                                 __class__: cls.getName()
                             },
-                            after: true, 
-                            msg: "BaseDexClassLoader.findClass()", 
+                            after: true,
+                            msg: "BaseDexClassLoader.findClass()",
                             tags: [{
                                 style:"purple",
                                 text: "dynamic"
-                            }], 
-                            action:"Log" 
+                            }],
+                            action:"Log"
                         });
                 `
             }, {
                 //when: HOOK.BEFORE,
                 method: "dalvik.system.DexClassLoader.<init>(<java.lang.String><java.lang.String><java.lang.String><java.lang.ClassLoader>)<void>",
                 onMatch: function (ctx, data) {
-                    // the evvent data contains the bytecode of the Dex file        
+                    // the evvent data contains the bytecode of the Dex file
                     ctx.getInspector("DynamicLoader").emits("hook.dex.classloader.new", data);
                 },
-                interceptBefore: `   
-                
-                        send({ 
-                            id:"@@__HOOK_ID__@@", 
-                            match: true, 
+                interceptBefore: `
+
+                        send({
+                            id:"@@__HOOK_ID__@@",
+                            match: true,
                             data: {
                                 arg0: arguments[0],
                                 arg1: arguments[1],
                                 arg2: arguments[2],
                                 __hidden__data: DEXC_MODULE.common.readFile(arguments[0])
                             },
-                            after: true, 
-                            msg: "DexClassLoader.<init>()", 
+                            after: true,
+                            msg: "DexClassLoader.<init>()",
                             tags: [{
                                 style:"purple",
                                 text: "dynamic"
-                            }], 
-                            action:"Log" 
+                            }],
+                            action:"Log"
                         });
-            
+
                 `
             }, {
                 //when: HOOK.BEFORE,
@@ -167,19 +167,19 @@ var DynLoaderInspector = new InspectorFactory({
                     names: new HOOK.VariableArray([])
                 },
                 interceptBefore: `
-                
+
                         var doCondition = true;
-            
-            
-                        if(@@__VAR__@@.names.indexOf(arguments[0])>-1) 
+
+
+                        if(@@__VAR__@@.names.indexOf(arguments[0])>-1)
                             doCondition = false;
-                        
-            
-            
+
+
+
                         if(doCondition){
-                            send({ 
-                                id:"@@__HOOK_ID__@@", 
-                                match: true, 
+                            send({
+                                id:"@@__HOOK_ID__@@",
+                                match: true,
                                 data: {
                                     dex: arguments[0],
                                     odex: arguments[1],
@@ -187,18 +187,18 @@ var DynLoaderInspector = new InspectorFactory({
                                     isNew: true,
                                     __hidden__data: DEXC_MODULE.common.readFile(arguments[0])
                                 },
-                                after: false, 
-                                msg: "DexFile.loadDex()", 
+                                after: false,
+                                msg: "DexFile.loadDex()",
                                 tags: [{
                                     style:"purple",
                                     text: "dynamic"
-                                }], 
-                                action:"Log" 
+                                }],
+                                action:"Log"
                             });
                         }else{
-                            send({ 
-                                id:"@@__HOOK_ID__@@", 
-                                match: true, 
+                            send({
+                                id:"@@__HOOK_ID__@@",
+                                match: true,
                                 data: {
                                     dex: arguments[0],
                                     odex: arguments[1],
@@ -206,17 +206,60 @@ var DynLoaderInspector = new InspectorFactory({
                                     isNew: false,
                                     __hidden__data: null
                                 },
-                                after: false, 
-                                msg: "DexFile.loadDex()", 
+                                after: false,
+                                msg: "DexFile.loadDex()",
                                 tags: [{
                                     style:"purple",
                                     text: "dynamic"
-                                }], 
-                                action:"Log" 
+                                }],
+                                action:"Log"
                             });
                         }
-            
-                        
+
+
+                `
+            }, {
+                //when: HOOK.BEFORE,
+                method: [
+                    "dalvik.system.PathClassLoader.<init>(<java.lang.String><java.lang.ClassLoader>)<void>"
+                ],
+                onMatch: function (ctx, event) {
+                    Logger.warn("[INSPECTOR][TASK] DynLoaderInspector new Dex file coming <============");
+                    ctx.getInspector("DynamicLoader").emits("hook.dex.new", event);
+                    ctx.getInspector("DynamicLoader").emits("hook.dex.classloader.new", event);
+                },
+                interceptBefore: `
+                        var data ={};
+                        var path="", path2="";
+
+                        for(var i=0; i<arguments.length; i++){
+                            if(isInstanceOf(arguments[i],"java.io.File")){
+                                data['arg'+i] = arguments[i].getAbsolutePath();
+                                data['__hidden__targ'+i] = 'f';
+                            }
+                            else if(isInstanceOf(arguments[i],"java.net.URL")){
+                                data['arg'+i] = arguments[i].toString();
+                                data['__hidden__targ'+i] = 'u';
+                            }
+                            else{
+                                data['arg'+i] = arguments[i];
+                                data['__hidden__targ'+i] = 's';
+                            }
+                        }
+                        data['__hidden__data'] = DEXC_MODULE.common.readFile(arguments[0]);
+
+                        send({
+                            id:"@@__HOOK_ID__@@",
+                            match: true,
+                            data: data,
+                            after: false,
+                            msg: "dalvik.system.PathClassLoader.$init() <===========",
+                            tags: [{
+                                style:"danger",
+                                text: "!dynamic!"
+                            }],
+                            action:"trace"
+                        });
                 `
             }, {
                 //when: HOOK.BEFORE,
@@ -227,52 +270,52 @@ var DynLoaderInspector = new InspectorFactory({
                 onMatch: function (ctx, event) {
                     ctx.getInspector("DynamicLoader").emits("hook.dex.new", event);
                 },
-                interceptBefore: `     
+                interceptBefore: `
                         if(isInstanceOf(arg0,"java.io.File"))
                             path = arg0.getAbsolutePath();
                         else
                             path = arg0;
-            
+
                         // DEXC_MODULE.common.copy(path, "dexfile.dex");
-            
-                        send({ 
-                            id:"@@__HOOK_ID__@@", 
-                            match: false, 
+
+                        send({
+                            id:"@@__HOOK_ID__@@",
+                            match: false,
                             data: {
                                 path: path,
                             },
-                            after: false, 
-                            msg: "DexFile.<init>()", 
+                            after: false,
+                            msg: "DexFile.<init>()",
                             tags: [{
                                 style:"purple",
                                 text: "dynamic"
-                            }], 
-                            action:"Log" 
+                            }],
+                            action:"Log"
                         });
                 `
             }/*,{
                 method: "android.os.Parcelable$ClassLoaderCreator.createFromParcel(<android.os.Parcel><java.lang.ClassLoader>)<java.lang.Object>",
                 onMatch: function(ctx,event){
-                   
+
                 },
-                interceptBefore: `    
-                        
+                interceptBefore: `
+
                         var parcel = arg0;
                         var cll = arg1;
-            
-                        send({ 
-                            id:"@@__HOOK_ID__@@", 
-                            match: true, 
+
+                        send({
+                            id:"@@__HOOK_ID__@@",
+                            match: true,
                             data: {
                                 classloader: "--" //arg1.getClass,
                             }
-                            after: true, 
-                            msg: "ClassLoaderCreator.createFromParcel()", 
+                            after: true,
+                            msg: "ClassLoaderCreator.createFromParcel()",
                             tags: [{
                                 style:"purple",
                                 text: "dynamic"
-                            }], 
-                            action:"Log" 
+                            }],
+                            action:"Log"
                         });
                 `
             }*/
@@ -389,12 +432,13 @@ var DynLoaderInspector = new InspectorFactory({
 
         "hook.dex.classloader.new": function (ctx, event) {
             // 1. save gathered bytecode to a file
-            // 2. disassemble this file 
+            // 2. disassemble this file
             // 3. Analyze & update graph
             // 4. Workspace cleanup
 
 
 
+            Logger.info("MIRAACLE========================");
             let rtWorkingDir = ctx.workspace.getRuntimeBcDir();
             let dexFileName = Path.basename(event.data.data.arg0);
             let localDexFile = Path.join(rtWorkingDir, dexFileName, dexFileName);
@@ -476,7 +520,7 @@ var DynLoaderInspector = new InspectorFactory({
                                     }));
                                     DynLoaderInspector.save();
                                 }
-    
+
                                 // remove tmp files
                             });*/
                     });
@@ -500,19 +544,19 @@ var DynLoaderInspector = new InspectorFactory({
 
             /*
                 let rettype = ctx.find.get.class(event.data.data.ret)
-    
+
             // if meth == null, the method is unknow and the graph should be updated
             if(meth == null){
                 let ref = new CLASS.Method();
-    
-    
+
+
                 ref.setReturnType(event.data)
-                
-    
+
+
             }*/
         },
 
-        
+
 
         "dxc.fullscan.post_deploy": function (ctx, event) {
             Logger.info("[INSPECTOR][TASK] Trying to restore previous data of DynLoaderInspector ... ");
@@ -551,11 +595,11 @@ var DynLoaderInspector = new InspectorFactory({
                         console.log(event);
                         ctx.getInspector("DynamicLoader").emits("hook.classloader.new", event);
                     },
-                    interceptBefore: `     
-    
-                            var data ={}; 
+                    interceptBefore: `
+
+                            var data ={};
                             var path="", path2="";
-    
+
                             for(var i=0; i<arguments.length; i++){
                                 if(isInstanceOf(arguments[i],"java.io.File")){
                                     data['arg'+i] = arguments[i].getAbsolutePath();
@@ -571,23 +615,23 @@ var DynLoaderInspector = new InspectorFactory({
                                 }
                             }
 
-                
-                            send({ 
-                                id:"@@__HOOK_ID__@@", 
-                                match: false, 
+
+                            send({
+                                id:"@@__HOOK_ID__@@",
+                                match: false,
                                 data: data,
-                                after: false, 
-                                msg: "@@__FQCN__@@.@@__METHNAME__@@()", 
+                                after: false,
+                                msg: "@@__FQCN__@@.@@__METHNAME__@@()",
                                 tags: [{
                                     style:"purple",
                                     text: "dynamic"
-                                }], 
-                                action:"trace" 
+                                }],
+                                action:"trace"
                             });
                         `
                 });
                 currentInspector.hookSet.deploy();
-            }            
+            }
         }
     }
 });
