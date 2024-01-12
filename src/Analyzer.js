@@ -714,7 +714,8 @@ function MakeMap(data,absoluteDB){
                 if(v.methods[j] instanceof CLASS.Method){
                     //mapInstructionFrom(data.classes[i].methods[j], data, STATS);
                     t = (new Date()).getTime();
-                    mapInstructionFrom(v.methods[j], absoluteDB, STATS);
+                    // Removed this line because its soooooo slow
+                    // mapInstructionFrom(v.methods[j], absoluteDB, STATS);
                     t1 = (new Date()).getTime();
                     if(t1-t>150)
                         Logger.debug((t1-t)+" : "+v.methods[j].signature());

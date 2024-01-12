@@ -221,7 +221,11 @@ var DynLoaderInspector = new InspectorFactory({
             }, {
                 //when: HOOK.BEFORE,
                 method: [
-                    "dalvik.system.PathClassLoader.<init>(<java.lang.String><java.lang.ClassLoader>)<void>"
+                    "dalvik.system.PathClassLoader.<init>(<java.lang.String><java.lang.ClassLoader>)<void>",
+                    "dalvik.system.PathClassLoader.<init>(<java.lang.String><java.lang.String><java.lang.ClassLoader>)<void>",
+                    "dalvik.system.BaseDexClassLoader.<init>(<java.lang.String><java.io.File><java.lang.String><java.lang.ClassLoader>)<void>",
+                    "dalvik.system.DelegateLastClassLoader.<init>(<java.lang.String><java.lang.ClassLoader>)<void>",
+                    "dalvik.system.DelegateLastClassLoader.<init>(<java.lang.String><java.lang.String><java.lang.ClassLoader>)<void>"
                 ],
                 onMatch: function (ctx, event) {
                     Logger.warn("[INSPECTOR][TASK] DynLoaderInspector new Dex file coming <============");
@@ -253,10 +257,10 @@ var DynLoaderInspector = new InspectorFactory({
                             match: true,
                             data: data,
                             after: false,
-                            msg: "dalvik.system.PathClassLoader.$init() <===========",
+                            msg: "@@__FQCN__@@.@@__METHNAME__@@()",
                             tags: [{
                                 style:"danger",
-                                text: "!dynamic!"
+                                text: "¡classloader!"
                             }],
                             action:"trace"
                         });
